@@ -411,4 +411,4 @@ myapi.key:
 	fi;
 
 
-.PHONY: handin tarball tarball-pref clean grade h
+.PHONY: handin tarball tarball-pref clean grade handin-check
