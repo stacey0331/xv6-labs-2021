@@ -1,0 +1,3 @@
+Q: what does multiplexing mean? 
+kind of means "map together".
+more multiplexing in chapter 7: schedueling. 
