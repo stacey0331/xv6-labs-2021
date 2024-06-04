@@ -65,6 +65,14 @@ usertrap(void)
     intr_on();
 
     syscall();
+  } else if (r_scause() == 15) {
+    pte_t * pte = walk(p->pagetable, r_stval(), 0);
+    if (pte == 0) p->killed = -1;
+    if (*pte & PTE_C) { // COW page
+      if (cow_handler(p->pagetable, r_stval()) != 0) {
+        p->killed =1;
+      }
+    }
   } else if((which_dev = devintr()) != 0){
     // ok
   } else {

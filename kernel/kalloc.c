@@ -80,3 +80,22 @@ kalloc(void)
     memset((char*)r, 5, PGSIZE); // fill with junk
   return (void*)r;
 }
+
+uint64
+cow_handler(pagetable_t pagetable, uint64 va) {
+  pte_t * pte = walk(pagetable, va, 0);
+  if (pte == 0) return -1;
+  uint64 pa = PTE2PA(*pte);
+  uint flags = (PTE_FLAGS(*pte) & ~PTE_C) | PTE_W;
+
+  char * mem;
+  if ((mem = kalloc()) == 0) return -1;
+  memmove(mem, (char*)pa, PGSIZE);
+
+  uvmunmap(pagetable, va, 1, 1); // will call kfree
+	if (mappages(pagetable, va, PGSIZE, (uint64)mem, flags) != 0) {
+		kfree((void *)mem);
+		return -1;
+	}
+  return 0;
+}
