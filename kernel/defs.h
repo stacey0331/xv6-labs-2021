@@ -64,6 +64,7 @@ void*           kalloc(void);
 void            kfree(void *);
 void            kinit(void);
 uint64          cow_handler(pagetable_t pagetable, uint64 va);
+void            ref_cnt_inc(void * pa);
 
 // log.c
 void            initlog(int, struct superblock*);
