@@ -1,3 +1,5 @@
 * uvmcopy: change mappages flags
+-> when writable PTE_C does not really matter. 
 * if ((*pte & PTE_C) == 0) return 0;
 why page fault not because of cow doesnt need kill? 
+-> probaly because tests didn't test normal page fault...?
