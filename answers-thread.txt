@@ -1,0 +1,2 @@
+Q: Why are there missing keys with 2 threads, but not with 1 thread? Identify a sequence of events with 2 threads that can lead to a key being missing.
+A: If 2 threads are trying to insert to the same table[i]. When the run insert() their n is both Null, then the thread that first finish insert() will lose its key. 
