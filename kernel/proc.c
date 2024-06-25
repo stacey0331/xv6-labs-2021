@@ -281,6 +281,13 @@ fork(void)
     return -1;
   }
 
+  for(int i = 0; i < 16; i++) {
+    if (p->vma_arr[i].length != 0) {
+      p->vma_arr[i].f = filedup(p->vma_arr[i].f);
+    }
+  }
+  memmove(np->vma_arr, p->vma_arr, 16*sizeof(struct vma));
+
   // Copy user memory from parent to child.
   if(uvmcopy(p->pagetable, np->pagetable, p->sz) < 0){
     freeproc(np);

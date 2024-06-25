@@ -487,10 +487,94 @@ sys_pipe(void)
 
 uint64
 sys_mmap(void) {
+  int length;
+  int prot, flags;
+  struct file *f;
+
+  if(argint(1, &length) < 0 || argint(2, &prot) < 0 || argint(3, &flags) < 0 || argfd(4, 0, &f) < 0){
+    return -1;
+  }
+
+  if (!f->writable && (prot & PROT_WRITE) && (flags & MAP_SHARED)) return -1;
+
+  if (!f->readable && (prot & PROT_READ)) return -1;
+
+  struct proc * p = myproc();
+  struct vma * pvma_arr = p->vma_arr;
+  for(int i = 0; i < 16; i++) {
+    if (pvma_arr[i].length == 0) {
+      pvma_arr[i].addr = p->sz;
+      pvma_arr[i].f = filedup(f);
+      pvma_arr[i].flags = flags;
+      pvma_arr[i].prot = prot;
+      pvma_arr[i].length = PGROUNDUP(length);
+      p->sz += pvma_arr[i].length;
+      return pvma_arr[i].addr;
+    }
+  }
   return -1;
+}
+
+int
+mmap_handler(struct proc * p, uint64 va) {
+    va = PGROUNDDOWN(va);
+    struct vma * vma_arr = p->vma_arr;
+    for (int i = 0; i < 16; i++) {
+      if (vma_arr[i].length != 0 && va >= vma_arr[i].addr && va < (vma_arr[i].addr + vma_arr[i].length)) {
+        char * pa = kalloc();
+        if (pa == 0) {
+          panic("cant kalloc");
+          return -1;
+        }
+
+        memset(pa, 0, PGSIZE); // have to have this 
+
+        if (mappages(p->pagetable, va, PGSIZE, (uint64)pa, (vma_arr[i].prot << 1) | PTE_U) < 0) {
+          kfree(pa);
+          panic("usertrap mappages");
+          return -1;
+        }
+
+        ilock(vma_arr[i].f->ip);
+        readi(vma_arr[i].f->ip, 1, (uint64)va, va-vma_arr[i].addr, PGSIZE);
+        iunlock(vma_arr[i].f->ip);
+        return 0;
+      }
+    }
+    return -1;
 }
 
 uint64
 sys_munmap(void) {
-  return -1;
+  uint64 addr;
+  int length;
+  if(argaddr(0, &addr) < 0 || argint(1, &length) < 0){
+    return -1;
+  }
+
+  struct proc * p = myproc();
+
+  struct vma * vma_arr = p->vma_arr;
+  for (int i = 0; i < 16; i++) {
+    if (vma_arr[i].length != 0 && addr >= vma_arr[i].addr && addr < (vma_arr[i].addr + vma_arr[i].length)) {
+      if (length > vma_arr[i].length) {
+        length = vma_arr[i].length;
+      }
+      
+      if (vma_arr[i].flags & MAP_SHARED) {
+        filewrite(vma_arr[i].f, addr, length);
+      }
+
+      uvmunmap(p->pagetable, addr, length/PGSIZE, 1);
+
+      vma_arr[i].length -= length;
+      if (vma_arr[i].length == 0) {
+        fileclose(vma_arr[i].f);
+      }
+      if (addr == vma_arr[i].addr) { // unmap from start
+        vma_arr[i].addr += length;
+      }
+    }
+  }
+  return 0;
 }
