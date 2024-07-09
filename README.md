@@ -1,3 +1,17 @@
+# 6.S081 Lab Assignments
+This repository contains my implementations of lab assignments for [6.S081 Operating Systems Engineering](https://pdos.csail.mit.edu/6.S081/2021/schedule.html), an open-source course offered at MIT. 
+- [Lab util: Unix utilities](https://github.com/stacey0331/xv6-labs-2021/tree/util)
+- [Lab syscall: System calls](https://github.com/stacey0331/xv6-labs-2021/tree/syscall)
+- [Lab pgtbl: Page tables](https://github.com/stacey0331/xv6-labs-2021/tree/pgtbl)
+- [Lab traps: Traps](https://github.com/stacey0331/xv6-labs-2021/tree/traps)
+- [Lab cow: Copy-on-write fork](https://github.com/stacey0331/xv6-labs-2021/tree/cow)
+- [Lab thread: Multithreading](https://github.com/stacey0331/xv6-labs-2021/tree/thread)
+- [Lab net: Network driver](https://github.com/stacey0331/xv6-labs-2021/tree/net)
+- [Lab lock: Parallelism/locking](https://github.com/stacey0331/xv6-labs-2021/tree/lock)
+- [Lab fs: File system](https://github.com/stacey0331/xv6-labs-2021/tree/fs)
+- [Lab mmap: Mmap](https://github.com/stacey0331/xv6-labs-2021/tree/mmap)
+
+## From Original Repo
 xv6 is a re-implementation of Dennis Ritchie's and Ken Thompson's Unix
 Version 6 (v6).  xv6 loosely follows the structure and style of v6,
 but is implemented for a modern RISC-V multiprocessor using ANSI C.
